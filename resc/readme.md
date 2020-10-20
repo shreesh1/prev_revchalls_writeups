@@ -1,7 +1,7 @@
 # Resources
-Markup: *Ghidra
-        *PE-viewer
-        *die
-        *HxD
-        *IDA
-        *dnspy
+Markup : *Ghidra
+         *PE-viewer
+         *die
+         *HxD
+         *IDA
+         *dnspy
