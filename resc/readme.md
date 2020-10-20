@@ -1,5 +1,6 @@
 # Resources
- Markup : * Bullet list
-              * Nested bullet
-                  * Sub-nested bullet etc
-          * Bullet list item 2
+Ghidra
+IDA
+HxD
+PE-viewer
+die(tool/github)
