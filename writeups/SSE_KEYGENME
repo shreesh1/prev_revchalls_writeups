@@ -1,0 +1,85 @@
+Basic rev chall can be solved through different ways like IDA bruteforcing,gdb bruteforcing,basic reversing
+
+## what i did was basic rev without bruteforcing
+for breif note
+what the func did was it took an input split it into 2 parts shuffled it with vpshufb with a given array [p_box(16) at 0x00e20] in which each value in p_box is reduced by 1 through vpsubb
+
+##reducing disassembly
+
+lea     rax, x_box
+mov     [rbp+var_D0], rax
+mov     rax, [rbp+var_D0]
+vlddqu  xmm0, xmmword ptr [rax]
+vmovaps [rbp+var_A0], xmm0
+vmovaps xmm0, [rbp+var_B0]
+vmovaps [rbp+var_20], xmm0
+vmovaps xmm0, [rbp+var_C0]
+vmovaps [rbp+var_10], xmm0
+vmovaps xmm0, [rbp+var_20]
+vmovaps xmm1, [rbp+var_10]
+vpsubb  xmm0, xmm0, xmm1
+vmovaps [rbp+var_B0], xmm0
+
+##shuffling disassembly
+
+mov     [rbp+var_D8], rax
+mov     rax, [rbp+var_D8]
+vlddqu  xmm0, xmmword ptr [rax]
+vmovaps [rbp+var_90], xmm0
+vmovaps xmm0, [rbp+var_90]
+vmovaps [rbp+var_40], xmm0
+vmovaps xmm0, [rbp+var_B0]
+vmovaps [rbp+var_30], xmm0
+vmovaps xmm1, [rbp+var_30]
+vmovaps xmm0, [rbp+var_40]
+vpshufb xmm0, xmm0, xmm1
+vmovaps [rbp+var_80], xmm0
+
+which is vex.128 through xmms registers and then vxored it
+with given array [x_box(16)at 0x00e30] 
+
+xoring disassembly
+
+vmovaps [rbp+var_60], xmm0
+vmovaps xmm0, [rbp+var_A0]
+vmovaps [rbp+var_50], xmm0
+vmovaps xmm1, [rbp+var_60]
+vmovaps xmm0, [rbp+var_50]
+vxorps  xmm0, xmm1, xmm0
+vmovaps [rbp+var_80], xmm0
+
+comparing each character 1 by 1:
+
+mov     rdx, [rbp+ptr]
+mov     rax, [rbp+var_F0]
+add     rax, rdx
+movzx   edx, byte ptr [rax]
+lea     rcx, flag
+mov     rax, [rbp+var_F0]
+add     rax, rcx
+movzx   eax, byte ptr [rax]
+cmp     dl, al
+
+
+
+joined those two splits and then compared it with given flag[32] array stored at 0x00e40
+
+so what i did was i first extracted the dumps through dd or you could also use hexdump or hd and then i generated a script to rev the chall
+
+p_box = [0x02, 0x07, 0x05, 0x0E, 0x01, 0x0C, 0x06, 0x03, 0x10, 0x08, 0x0B, 0x0F, 0x0D, 0x0A, 0x09, 0x04]
+x_box = [0x02, 0x03, 0x05, 0x07, 0x0B, 0x0D, 0x11, 0x13, 0x17, 0x1D, 0x1F, 0x25, 0x29, 0x2B, 0x2F, 0x00]
+convflag = [0x43, 0x51, 0x43, 0x36, 0x40, 0x52, 0x21, 0x55, 0x24, 0x42, 0x5B, 0x68, 0x7D, 0x67, 0x1F, 0x7B, 0x5D, 0x7E, 0x4E, 0x0E, 0x58, 0x04, 0x22, 0x40, 0x1E, 0x14, 0x16, 0x2C, 0x20, 0x22, 0x26, 0x34]
+
+midflag = [convflag[i]^x_box[i%16] for i in range(32)]
+print(midflag)
+flag = []
+for i in range(32):
+    if i < 16:
+        flag[p_box[i%16]-1] = midflag[i]
+    else:
+        flag[p_box[i%16]+15] = new[i]
+print(''.join([chr(i) for i in flag]))
+
+
+the script and the extracted dumps
+
