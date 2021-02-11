@@ -1,0 +1,17 @@
+import angr
+import claripy
+import logging
+
+len=22
+proj = angr.Project('babymix')
+logging.getLogger('angr').setLevel('DEBUG')
+
+flag_chars = [claripy.BVS('flag_%d' % i, 8) for i in range(len)]
+
+flag = claripy.Concat( *flag_chars + [claripy.BVV("\n", 8)])
+
+state = proj.factory.full_init_state(stdin=flag)
+simgr = proj.factory.simulation_manager(state)
+simgr.explore(find=lambda s: b"Correct! Wrap password in dice{} for the flag :)" in s.posix.dumps(1))
+s = simgr.found[0]
+print(s.posix.dumps(0))
