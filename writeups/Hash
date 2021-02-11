@@ -1,0 +1,18 @@
+import angr
+import claripy
+import logging
+
+proj = angr.Project('Hash')
+logging.getLogger('angr').setLevel('DEBUG')
+#angr.path_group.l.setlevel('DEBUG')
+arg1=claripy.BVS('arg1',13*8)
+ini = proj.factory.entry_state(args=['./Hash',arg1])
+for c in arg1.chop(8):
+        ini.add_constraints(arg1.get_byte(2)==claripy.BVV(0x33,8))
+        ini.add_constraints(arg1.get_byte(6)==claripy.BVV(0x35,8))
+        ini.add_constraints(arg1.get_byte(9)==claripy.BVV(0x34,8))
+        ini.add_constraints(arg1.get_byte(11)==claripy.BVV(0x37,8))
+simgr = proj.factory.simgr(ini)
+simgr.explore(find=lambda s: b"Here you go awaaaaay :" in s.posix.dumps(1))
+s = simgr.found[0]
+print(s.posix.dumps(0))
